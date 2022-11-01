@@ -4,7 +4,9 @@ class UserController {
     this.tableEl = document.getElementById(tBodyId);
     this.addUserBox = document.getElementById('add_user');
     this.editUserBox = document.getElementById('edit_user');
+    this.btnCancelEdit = document.getElementById('btn-cancel-edit');
     this.onSubmit();
+    this.onCancelEdit();
   };
 
   onSubmit() {
@@ -145,6 +147,14 @@ class UserController {
 
     this.tableEl.appendChild(tr);
     this.calc();
+  };
+
+  onCancelEdit() {
+    this.btnCancelEdit.addEventListener('submit', e => {
+      e.preventDefault;
+      this.addUserBox.style.display = 'block';
+      this.editUserBox.style.display = 'none';
+    });
   };
 
   calc() {
