@@ -24,6 +24,35 @@ class UserController {
       btnSubmit.disabled = true;
 
       let values = this.getValues(this.formUpdateEl);
+
+      let index = this.formUpdateEl.dataset.trIndex;
+
+      let tr = this.tableEl.rows[index];
+
+      tr.dataset.user = JSON.stringify(values);
+
+      tr.innerHTML = `
+      <td><img src="${values.photo}" alt="User Image" class="img-circle img-sm"></td>
+      <td>${values.name}</td>
+      <td>${values.email}</td>
+      <td>${values.admin ? 'Sim' : 'Não'}</td>
+      <td>${Utils.dateFormat(values.register)}</td>
+      <td>
+        <button type="button" class="btn btn-primary btn-edit btn-xs btn-flat">Editar</button>
+        <button type="button" class="btn btn-danger btn-xs btn-flat">Excluir</button>
+      </td>
+      `;
+
+      this.addEventsTr(tr);
+
+      this.calc();
+
+      this.formUpdateEl.reset();
+
+      btnSubmit.disabled = false;
+
+      this.showPanelCreate();
+
     });
   };
 
@@ -158,9 +187,19 @@ class UserController {
         </td>
     `
 
+    this.addEventsTr(tr);
+
+    this.tableEl.appendChild(tr);
+
+    this.calc();
+  };
+
+  addEventsTr(tr) {
     tr.querySelector('.btn-edit').addEventListener('click', e => {
       let json = JSON.parse(tr.dataset.user);
       let formEdit = document.querySelector('#form-user-update');
+
+      formEdit.dataset.trIndex = tr.sectionRowIndex;
 
       for (let name in json) {
         let field = formEdit.querySelector(`[name='${name.replace('_', '')}']`);
@@ -187,10 +226,7 @@ class UserController {
 
       this.showPanelEdit();
     });
-
-    this.tableEl.appendChild(tr);
-    this.calc();
-  };
+  }
 
   showPanelCreate() {
     this.addUserBox.style.display = 'block';
@@ -205,12 +241,15 @@ class UserController {
   calc() {
     const userCounter = document.getElementById('userCounter');
     const adminCounter = document.getElementById('adminCounter');
+    const users = [...this.tableEl.children];
 
-    [...this.tableEl.children].forEach(e => {
+    users.forEach(e => {
 
-      userCounter.innerHTML++;
+      userCounter.innerHTML = users.length;
 
       let userInfo = JSON.parse(e.dataset.user);
+
+      console.log(userInfo)
 
       if (userInfo._admin) {
         adminCounter.innerHTML++;
