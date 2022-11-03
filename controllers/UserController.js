@@ -1,19 +1,37 @@
 class UserController {
-  constructor(formId, tBodyId) {
-    this.formEl = document.getElementById(formId);
+  constructor(formIdCreate, formIdUpdate, tBodyId) {
+    this.formEl = document.getElementById(formIdCreate);
+    this.formUpdateEl = document.getElementById(formIdUpdate);
     this.tableEl = document.getElementById(tBodyId);
     this.addUserBox = document.getElementById('add_user');
     this.editUserBox = document.getElementById('edit_user');
     this.btnCancelEdit = document.getElementById('btn-cancel-edit');
     this.onSubmit();
-    this.onCancelEdit();
+    this.onEdit();
+  };
+
+  onEdit() {
+    document.querySelector('#edit_user .btn-cancel').addEventListener('click', e => {
+      e.preventDefault()
+      this.showPanelCreate();
+    });
+
+    this.formUpdateEl.addEventListener('submit', e => {
+      e.preventDefault();
+
+      let btnSubmit = this.formUpdateEl.querySelector('[type=submit]');
+
+      btnSubmit.disabled = true;
+
+      let values = this.getValues(this.formUpdateEl);
+    });
   };
 
   onSubmit() {
     this.formEl.addEventListener('submit', e => {
       e.preventDefault();
 
-      let values = this.getValues();
+      let values = this.getValues(this.formEl);
       let btnSubmit = this.formEl.querySelector('[type=submit]');
 
       btnSubmit.disabled = true;
@@ -70,11 +88,11 @@ class UserController {
     });
   };
 
-  getValues() {
+  getValues(form) {
     let user = {};
     let isValid = true;
 
-    [...this.formEl.elements].forEach(field => {
+    [...form.elements].forEach(field => {
       if (['name', 'email', 'password'].indexOf(field.name) > -1 && !field.value) {
 
         field.parentElement.classList.add('has-error');
@@ -141,21 +159,48 @@ class UserController {
     `
 
     tr.querySelector('.btn-edit').addEventListener('click', e => {
-      this.addUserBox.style.display = 'none';
-      this.editUserBox.style.display = 'block';
+      let json = JSON.parse(tr.dataset.user);
+      let formEdit = document.querySelector('#form-user-update');
+
+      for (let name in json) {
+        let field = formEdit.querySelector(`[name='${name.replace('_', '')}']`);
+
+        if (field) {
+          switch (field.type) {
+            case 'file':
+              continue;
+
+            case 'radio':
+              field = formEdit.querySelector(`[name='${name.replace('_', '')}'][value='${json[name]}']`);
+              field.checked = true;
+              break;
+
+            case 'checkbox':
+              field.checked = json[name];
+              break;
+
+            default:
+              field.value = json[name];
+          }
+        }
+      }
+
+      this.showPanelEdit();
     });
 
     this.tableEl.appendChild(tr);
     this.calc();
   };
 
-  onCancelEdit() {
-    this.btnCancelEdit.addEventListener('submit', e => {
-      e.preventDefault;
-      this.addUserBox.style.display = 'block';
-      this.editUserBox.style.display = 'none';
-    });
-  };
+  showPanelCreate() {
+    this.addUserBox.style.display = 'block';
+    this.editUserBox.style.display = 'none';
+  }
+
+  showPanelEdit() {
+    this.addUserBox.style.display = 'none';
+    this.editUserBox.style.display = 'block';
+  }
 
   calc() {
     const userCounter = document.getElementById('userCounter');
