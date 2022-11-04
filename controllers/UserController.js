@@ -8,6 +8,7 @@ class UserController {
     this.btnCancelEdit = document.getElementById('btn-cancel-edit');
     this.onSubmit();
     this.onEdit();
+    this.selectAll();
   };
 
   onEdit() {
@@ -93,6 +94,7 @@ class UserController {
           values.photo = content
           btnSubmit.disabled = false;
 
+          this.insert(values);
           this.addLine(values);
           this.formEl.reset();
 
@@ -196,10 +198,10 @@ class UserController {
   };
 
   getUsersStorage() {
-    const users = [];
+    let users = [];
 
     if (sessionStorage.getItem('users')) {
-
+      console.log()
       users = JSON.parse(sessionStorage.getItem('users'));
 
     }
@@ -235,8 +237,6 @@ class UserController {
 
   addLine(userData) {
     const tr = document.createElement('tr');
-
-    this.insert(userData);
 
     tr.dataset.user = JSON.stringify(userData);
 
